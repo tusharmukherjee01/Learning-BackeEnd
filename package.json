@@ -1,0 +1,15 @@
+{
+  "name": "chai_backeend_project",
+  "version": "1.0.0",
+  "description": "Back End Project Production Grade",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Js",
+    "Bakend"
+  ],
+  "author": "Tushar Mukherjee",
+  "license": "ISC"
+}
