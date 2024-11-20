@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "Back End Project Production Grade",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon src/index.js"
   },
   "keywords": [
     "Js",
     "Bakend"
   ],
   "author": "Tushar Mukherjee",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
 }
