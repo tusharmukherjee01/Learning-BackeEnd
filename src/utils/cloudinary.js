@@ -8,7 +8,6 @@ cloudinary.config({
         api_secret: process.env.CLOUDINARY_API_SECRET  // Click 'View API Keys' above to copy your API secret
     });
 
-
     const uploadOnCloudinary = async (localFilePath) => {
         try{
             if(!localFilePath) return null
@@ -17,13 +16,13 @@ cloudinary.config({
                resourse_type:"auto" 
             })
                //file has been successfuly uploaded..
-               console.log("File uploaded on cloudinary :",response.url)
+            //    console.log("File uploaded on cloudinary :",response)
+               fs.unlinkSync(localFilePath)
                return response
         }catch(error){
-            
+
             fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
              return null;
         }
     }
-
     export {uploadOnCloudinary}
