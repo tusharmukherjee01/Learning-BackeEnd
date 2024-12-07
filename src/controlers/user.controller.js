@@ -265,7 +265,7 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
       req.user?._id,
        {
         $set:{fullName,email}
-       }
+       },
       {new:true}
    
    ).select("-password")
