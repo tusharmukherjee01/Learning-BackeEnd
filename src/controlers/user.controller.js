@@ -261,7 +261,7 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
       throw new ApiErrorHandel(404,"All Filed are required!!")
    }
 
-  const user =  User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
       req.user?._id,
        {
         $set:{fullName,email}
@@ -284,6 +284,7 @@ const updateUserAvatar = asyncHandler(async(req,res) => {
   if(!avatarLocalPath){
    throw new ApiErrorHandel(400,"Avatar Image is Missing")
   }
+  
    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
    if(!avatar.url){
@@ -334,8 +335,76 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
 })
 
 
+const getUserChannelProfile = asyncHandler(async(req,res) => {
+ 
+   const {username} = req.params;
 
-export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage}
+   if(!username?.trim()){
+      throw new ApiErrorHandel(400,"User Name is Missing!!")
+   }
+
+   const channel = await User.aggregate([
+      {
+         $match:{
+            username : username?.toLowerCase()
+         }
+      },
+      {
+         $lookup:{
+            from:"subscriptions",   // Subscription => will be converted to "subscriptions" at the time of store in MONGODB thats why use "subscriptions"
+            localField:"_id",
+            foreignFiled:"channel" , // select channel how it works ?? check video no.18
+            as:"subscribers"
+         }
+      },
+      {
+         $lookup:{
+            from:"subscriptions",   // Subscription => will be converted to "subscriptions" at the time of store in MONGODB thats why use "subscriptions"
+            localField:"_id",
+            foreignFiled:"subscriber", // select channel how it works ?? check video no.18
+            as:"subscribedTo"
+         }
+      },
+      {
+         $addFields:{  // add this fileds in User object
+            subscribersCount :{
+               $size:"$subscribers"    // $size => will tell us count of subscribers filed (or document) || $subscribers => because subscribers is a field , syntax bro you can't do anything...
+            },
+            channelsSubscribedToCount:{
+                $size:"$subscribedTo" // same explanation as upper
+            },
+            isSubscribed:{
+               $cond:{
+                  if:{$in: [req.user?._id,"$subscribers.subscriber"]}  // what is going on ? => $subscribers filed subscriber(in schema) object which is user acctually -> check in that subscriber "req.user?._id" present or not
+                  then:true,
+                  else:false 
+               }
+            }
+         }
+      },
+      {
+         $project:{  // this acctually whatever i required only that filed will send by flag value 1 menas will sent that value..
+            fullName: 1,
+            username: 1,
+            subscribersCount: 1,
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1,
+            avatar: 1,
+            coverImage: 1,
+            email: 1,
+         }
+      }
+   ])
+
+   if(!channel?.length){
+      throw new ApiErrorHandel(400,"Channel Does't Exists!!")
+   }
+
+   return res.status(200)
+   .json( new ApiResponseHandel(200,channel[0]),"User Channel Fetched Successfully!!")
+})
+
+export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile}
 
 
 
