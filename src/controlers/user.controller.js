@@ -5,6 +5,7 @@ import {User} from "../models/user.models.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponseHandel} from "../utils/ApiResponseHandel.js"
 import jwt from "jsonwebtoken"
+import mongoose from 'mongoose'
 
 // creating access and refresh token
 
@@ -375,7 +376,7 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
             },
             isSubscribed:{
                $cond:{
-                  if:{$in: [req.user?._id,"$subscribers.subscriber"]}  // what is going on ? => $subscribers filed subscriber(in schema) object which is user acctually -> check in that subscriber "req.user?._id" present or not
+                  if:{$in: [req.user?._id,"$subscribers.subscriber"]},  // what is going on ? => $subscribers filed subscriber(in schema) object which is user acctually -> check in that subscriber "req.user?._id" present or not
                   then:true,
                   else:false 
                }
@@ -404,7 +405,69 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
    .json( new ApiResponseHandel(200,channel[0]),"User Channel Fetched Successfully!!")
 })
 
-export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile}
+  const getWatchHistory = asyncHandler(async(req,res) => {
+      
+   const user = await User.aggregate([
+      {
+         $match:{
+            _id: new mongoose.Types.ObjectId(req.user._id)
+         }
+      },
+      {
+         $lookup:{
+            from:"videos",   // Subscription => will be converted to "subscriptions" at the time of store in MONGODB thats why use "subscriptions"
+            localField:"watchHistory",
+            foreignFiled:"_id", // select channel how it works ?? check video no.18
+            as:"watchHistory",
+            pipeline:[
+               {
+                  $lookup:{
+                     from:"users",
+                     localField:"owner",
+                     foreignField:"_id",
+                     as:"owner",
+                     pipeline:[
+                        {
+                           $project:{
+                              fullName:1,
+                              username:1,
+                              avatar:1
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  $addFields:{
+                     owner:{
+                        $first:"$owner"
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   ])
+
+   res.
+   status(200)
+   .json(new ApiResponseHandel(200,user[0].watchHistory,"Watch History Fetch SuccessFully"))
+  })
+
+
+export {
+   registerUser,
+   loginUser,
+   logoutUser,
+   refreshAccessToken,
+   changeCurrentPassword,
+   getCurrentUser,
+   updateAccountDetails,
+   updateUserAvatar,
+   updateUserCoverImage,
+   getUserChannelProfile,
+   getWatchHistory
+}
 
 
 
@@ -452,4 +515,10 @@ if(fullName === ""){
  4. check for password 
  5. access and refresh token generate
  6. send cookie 
+*/
+
+/*
+"req.user._id " => from here you get a string but mongoDB id is Object('8574589275752575') like that => under the hood mongose work and convert it in acctual format 
+   
+but aggregation pipeline not work with mongoose you have to convert it manually
 */
