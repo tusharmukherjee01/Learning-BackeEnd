@@ -36,7 +36,7 @@ router.route("/logout").post(verifyJWT,logoutUser)
 
 router.route("/refresh-token").post(refreshAccessToken)
 
-router.route("/change-password").post(verifyJWT,changeCurrentPassword)
+router.route("/change-password").post(verifyJWT,changeCurrentPassword) // this is authorization => if you login then only you can access this change password page...
 
 router.route("/current-user").get(verifyJWT,getCurrentUser)
 

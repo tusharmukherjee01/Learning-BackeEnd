@@ -9,7 +9,7 @@ class ApiErrorHandel extends Error{
     ){
       super(message)
       this.statusCode=statusCode
-      this.data=null // rerad about it..
+      this.data=null // read about it..
       this.message=message
       this.success=false
       this.errors = errors

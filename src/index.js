@@ -1,10 +1,24 @@
 
-// require('dotenv').config({path:'./env})
+// require('dotenv').config({path:'./env})    // 
 import dotenv from 'dotenv'
 // import express from 'express'
 import {app} from './app.js'
 import connectDB from './db/index.js';
-// const app = express()
+// import mongoose from 'mongoose';
+// import { DB_NAME } from './constants.js';
+
+
+//One of the best use case of IIFE 
+// (async ()=>{
+//     try {
+//        await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`)
+//     console.log("DB Connection Successful!!...")
+//     } catch (error) {
+//         console.error("ERROR ",error);
+//         throw error
+//     }
+// })()
+
 
 dotenv.config({
     path:'/.env'
