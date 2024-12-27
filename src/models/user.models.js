@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
     }
 },{timestamps:true})
 
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function(next){ // do not use arrow function here because arrow function do not have this menas arrow function dont have access to current object 
     if(!this.isModified("password")) return next()
     this.password = await bcrypt.hash(this.password,10)
     next()

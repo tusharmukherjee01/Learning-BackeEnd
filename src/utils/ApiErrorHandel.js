@@ -1,6 +1,6 @@
 
 class ApiErrorHandel extends Error{
-
+  
     constructor(
         statusCode,
         message="Something went wrong",
