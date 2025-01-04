@@ -4,11 +4,10 @@ import {ApiErrorHandel} from "../utils/ApiErrorHandel.js"
 import jwt from "jsonwebtoken"
 import {User} from "../models/user.models.js"
 
-
 export const verifyJWT = asyncHandler(async(req, _, next) => {
     try {
-        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
-        
+        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")     //Authorization:Bearer <token>
+    
         // console.log(token);
         if (!token) {
             throw new ApiErrorHandel(401, "Unauthorized request---->>>>")

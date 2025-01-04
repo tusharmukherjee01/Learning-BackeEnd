@@ -8,7 +8,6 @@ import jwt from "jsonwebtoken"
 import mongoose from 'mongoose'
 
 // creating access and refresh token
-
 const generateAccessAndRefreshTokens = async (userId) => {
 
    try{
@@ -48,13 +47,12 @@ const registerUser = asyncHandler( async (req,res) => {
    //   console.log("Files : ",req.files);
     // step:4
   const avatarLocalPath = req.files ?. avatar[0]?.path;
-//   const coverImageLocalPath = req.files?.coverImage[0]?.path;
+//   const coverImageLocalPath = req.files?.coverImage[0]?.path; // in this code what happend if cover image not send then throwing error like "can't read property of undefined" => because i did't check for cover image present or not . so, i have to checck
 
    let coverImageLocalPath;
    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
       coverImageLocalPath = req.files.coverImage[0].path
    }
-
 
   if(!avatarLocalPath){
      throw new ApiErrorHandel(400,"Avatar is Required!!")
@@ -96,7 +94,7 @@ const registerUser = asyncHandler( async (req,res) => {
 
 //-------------------------------------------------------------------------------------
 // LOGIN USER--->--->
-
+?.kh 
 const loginUser = asyncHandler(async (req,res) => {
  
    //step:1
@@ -107,7 +105,7 @@ const loginUser = asyncHandler(async (req,res) => {
    }
    //step:3
   const user = await User.findOne({
-      $or:[{username},{email}]
+      $or:[{ username },{ email }]
    })
     
    if(!user){
@@ -126,12 +124,12 @@ const loginUser = asyncHandler(async (req,res) => {
         //step:6
      const loggedInUser =  await User.findById(user._id).
      select("-password -refreshToken")
-
+        
      const options = {
       httpOnly:true,
       secure:true,
      }
-
+      
      return res.
      status(200).
      cookie("accessToken",accessToken,options).
@@ -493,7 +491,7 @@ Register a User Steps:
 4.check for images , check for avatar => upload them to cloudinary
 5.create a object for store data in mongoDB(nosql) - create entry in DB
 6.remove password and refresh token filed from response => i don't wanna send this filed to frontend
-7.check for user creatio
+7.check for user creation
 8. if created then return response other wise handel error
 */
 

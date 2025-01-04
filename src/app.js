@@ -25,7 +25,7 @@ import userRouter from './routes/user.routes.js' // nijer moner moto naam tokhn 
 //routes decleration
 app.use("/api/v1/users",userRouter)
 
-// url: http://localhost:8000/api/v1/users/register
+//url:http://localhost:8000/api/v1/users/register
 //http://localhost:3000/api/v1/users/login
 //http://localhost:3000/api/v1/users/signup    => like this url will generate. /user add in prefix for every userRouter's  
 

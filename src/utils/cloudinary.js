@@ -5,9 +5,8 @@ import fs from 'fs' // it is comes automatic with nodejs to handel file
 cloudinary.config({ 
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
         api_key: process.env.CLOUDINARY_API_KEY, 
-        api_secret: process.env.CLOUDINARY_API_SECRET  // Click 'View API Keys' above to copy your API secret
+        api_secret: process.env.CLOUDINARY_API_SECRET  // Click 'View API Keys' above to copy your API secret->in cloudinary
     });
-
     const uploadOnCloudinary = async (localFilePath) => {
         try{
             if(!localFilePath) return null
@@ -16,7 +15,7 @@ cloudinary.config({
                resourse_type:"auto" 
             })
                //file has been successfuly uploaded..
-            //    console.log("File uploaded on cloudinary :",response)
+              console.log("File uploaded on cloudinary :",response)
                fs.unlinkSync(localFilePath)
                return response
         }catch(error){
