@@ -182,7 +182,6 @@ const refreshAccessToken = asyncHandler(async(req,res) => {
    throw new ApiErrorHandel(401,"Unauthorizes Request")
   }
 
-
    try{
     const decodedToken = jwt.verify(
       incommingRefreshToken,
@@ -237,6 +236,7 @@ const changeCurrentPassword = asyncHandler(async (req,res) => {
     }
 
     user.password=newPassword
+
      await user.save({validateBeforeSave:false})
 
      return res.status(200).
@@ -248,8 +248,8 @@ const changeCurrentPassword = asyncHandler(async (req,res) => {
 const getCurrentUser = asyncHandler(async (req,res) => {
 
    return res.status(200)
-   .json(200,req.user,"Current User Fetched Successfully!!")
-})
+   .json(new ApiResponseHandel(200,req.user,"Current User Fetched Successfully!!")) // must pass throw jwtVerify middleware only you will get req.user
+}
 
 const updateAccountDetails = asyncHandler(async(req,res)=>{
     
@@ -264,11 +264,12 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
        {
         $set:{fullName,email}
        },
-      {new:true}
+      {new:true} // nothing but return after update the updated document
    
    ).select("-password")
 
-   res.status(200).
+   res
+   .status(200).
    json(new ApiResponseHandel(200,user,"Account Details Update successFully!!"))
    
 })
@@ -332,7 +333,8 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
    .json(new ApiResponseHandel(200,user,"Cover Image Successfully Uploaded"))
 })
 
-
+//-------------------------------------------------------------------------------------
+ 
 const getUserChannelProfile = asyncHandler(async(req,res) => {
  
    const {username} = req.params;
@@ -366,7 +368,7 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
       {
          $addFields:{  // add this fileds in User object
             subscribersCount :{
-               $size:"$subscribers"    // $size => will tell us count of subscribers filed (or document) || $subscribers => because subscribers is a field , syntax bro you can't do anything...
+               $size:"$subscribers"    // $size => will tell us count of subscribers filed (or document) || {$subscribers => because subscribers is a field} , syntax bro you can't do anything...
             },
             channelsSubscribedToCount:{
                 $size:"$subscribedTo" // same explanation as upper
@@ -393,6 +395,23 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
          }
       }
    ])
+  
+   /*
+   console.log(channel) :
+   [
+  {
+    fullName: "John Doe", // User's full name
+    username: "johndoe", // User's username
+    subscribersCount: 25, // Count of subscribers
+    channelsSubscribedToCount: 10, // Count of channels the user is subscribed to
+    isSubscribed: true, // Whether the current user is subscribed to this user
+    avatar: "avatar-url.jpg", // User's avatar image URL
+    coverImage: "cover-image-url.jpg", // User's cover image URL
+    email: "john.doe@example.com" // User's email address
+  }
+]
+
+   */
 
    if(!channel?.length){
       throw new ApiErrorHandel(400,"Channel Does't Exists!!")
@@ -401,18 +420,18 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
    return res.status(200)
    .json( new ApiResponseHandel(200,channel[0]),"User Channel Fetched Successfully!!")
 })
-
+//-----------------------------------------------
   const getWatchHistory = asyncHandler(async(req,res) => {
       
    const user = await User.aggregate([
       {
          $match:{
-            _id: new mongoose.Types.ObjectId(req.user._id)
+            _id: new mongoose.Types.ObjectId(req.user._id) // in general "req.user?._id" is a string but mongoose convert it in mongodb id ObjectId('6467788233') like this ,, but but in case of aggregation pipeline every code go directly mongoose not work here that is why you need to convert it in mongodb id... 
          }
       },
       {
          $lookup:{
-            from:"videos",   // Subscription => will be converted to "subscriptions" at the time of store in MONGODB thats why use "subscriptions"
+            from:"videos",   
             localField:"watchHistory",
             foreignFiled:"_id", // select channel how it works ?? check video no.18
             as:"watchHistory",
@@ -445,7 +464,33 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
          }
       }
    ])
+// print user =>
+      /*
+      [
+   {
+      _id: ObjectId("64a9d2b5e5f8ab1234567890"), // User ID
+      watchHistory: [
+         {
+            _id: ObjectId("650c1234abc5678901234567"), // Video 1 ID
+            owner: {
+               fullName: "John Doe",
+               username: "john_doe",
+               avatar: "https://example.com/avatar/john.jpg"
+            }
+         },
+         {
+            _id: ObjectId("650c5678def1234567890123"), // Video 2 ID
+            owner: {
+               fullName: "Jane Smith",
+               username: "jane_smith",
+               avatar: "https://example.com/avatar/jane.jpg"
+            }
+         }
+      ]
+   }
+]
 
+      */
    res.
    status(200)
    .json(new ApiResponseHandel(200,user[0].watchHistory,"Watch History Fetch SuccessFully"))
@@ -519,3 +564,5 @@ if(fullName === ""){
    
 but aggregation pipeline not work with mongoose you have to convert it manually
 */
+
+
