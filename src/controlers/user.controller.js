@@ -40,6 +40,8 @@ const registerUser = asyncHandler( async (req,res) => {
    const existedUser = await User.findOne({
         $or:[{ username },{ email }]
      })
+   // without monggose we have to do -> db.collection("users").findOne({ email: "abc@test.com" });
+
    
      if(existedUser){
         throw new ApiErrorHandel(409,"User with email or username Already Exist!!")
